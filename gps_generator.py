@@ -23,8 +23,8 @@ def get_coordinates_from_file(source_file, target_file):
                             'lat': line_items[3],
                             'lng': line_items[4][:len(line_items[4])-1]
                         }
-                    else:
-                        print('{} was found in the existing list'.format(address_key))
+                    #else:
+                     #   print('{} was found in the existing list'.format(address_key))
         gps_json = json.dumps(gps_list, indent=4, ensure_ascii=False).encode('utf8')
         gps_file = open(target_file, 'w', encoding='utf-8')
         print(gps_json.decode(), file=gps_file)
@@ -33,7 +33,7 @@ def get_coordinates_from_file(source_file, target_file):
     finally:
         file.close()
         gps_file.close()
-        print('gps_coords written to file')
+        #print('gps_coords written to file')
 
 
 def save_gps_coords_file(coordinates_data, coordinates_file):
@@ -51,7 +51,7 @@ def get_coords_from_list(street, city, list):
     lat, lng, accurate = 0,0,0
     street_city = '{}_{}'.format(street, city)
     if street_city in list:
-        print('{} is a match!'.format(street_city))
+        #print('{} is a match!'.format(street_city))
         lat = list[street_city]['lat']
         lng = list[street_city]['lng']
         if 'street_accurate' in list[street_city]:
@@ -64,6 +64,7 @@ def get_coords_from_list(street, city, list):
 def load_gps_coordinates(bot_answers_file):
     gps_file_content = None
     addresses_from_list, addresses_from_web = 0, 0
+    data_with_coords = []
     try:
         gps_file_content = open(gps_source_file, "r")
         coords = json.load(gps_file_content)
@@ -71,7 +72,6 @@ def load_gps_coordinates(bot_answers_file):
         first_line = True
         street_index = None
         city_index = None
-        data_with_coords = []
         with open(bot_answers_file, 'r') as answers:
             for line in answers.readlines():
                 fields = line.split(',')
@@ -131,21 +131,21 @@ def load_gps_coordinates(bot_answers_file):
                     if isinstance(lat, int) and lat < 0:
                         save_gps_coords_file(coords, gps_source_file)
                         print('failed to get gps data from web. Probably exceeded limits')
-                        exit(1)
+                        return data_with_coords
                     accurate = int(accurate)
                     data_with_coords.append(line[:len(line)-1] + ',{},{},{}\n'.format(lat, lng, accurate))
         save_gps_coords_file(coords, gps_source_file)
-        return data_with_coords
     except Exception as err:
         print('failed to load gps coordinates', err)
     finally:
         gps_file_content.close()
         print('addresses from memory: {}, addresses from web-app: {}'.format(addresses_from_list, addresses_from_web))
+        return data_with_coords
 
 
 def get_coords_from_web(street, city):
     time.sleep(1)
-    print('getting gps data from web for {} {}'.format(street, city))
+   # print('getting gps data from web for {} {}'.format(street, city))
     query_params = 'city={}'.format(city)
     street_accurate = True
     if len(street) > 0:
@@ -156,14 +156,14 @@ def get_coords_from_web(street, city):
     if response.status_code == 200:
         respone_object = response.json();
         if len(respone_object) > 0:
-            print('got address details from web {}, {}, {}'.format(respone_object[0]['lat'], respone_object[0]['lon'],
-                                                                   street_accurate))
+            #print('got address details from web {}, {}, {}'.format(respone_object[0]['lat'], respone_object[0]['lon'],
+                        #                                           street_accurate))
             return respone_object[0]['lat'], respone_object[0]['lon'], street_accurate
         else:
             if len(street) > 0:
                 return get_coords_from_web('', city)
             else:
-                print('no gps data found on web')
+            #    print('no gps data found on web')
                 return 0, 0, 0
     else:
         print('failed to get gps data from web, code received: ', response.status_code)
