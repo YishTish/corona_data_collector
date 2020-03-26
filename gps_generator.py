@@ -119,7 +119,7 @@ class GPSGenerator:
                     self.coords[f'{city}_{city}'] = {
                         'lat': lat,
                         'lng': lng,
-                        'street_accurate': accurate
+                        'street_accurate': int(accurate)
                     }
                     return f'{lat},{lng},{int(accurate)}', FROM_WEB
             return '0,0,0', NOT_FOUND
@@ -217,13 +217,13 @@ class GPSGenerator:
 
     @staticmethod
     def get_coords_from_web(street, city):
-        street_accurate = True
+        street_accurate = False
         if len(street) > 0:
-            street_accurate = False
+            street_accurate = True
         response = requests.get(f'{gps_url}?key={gps_url_key}&address={street} {city}')
         if response.status_code == 200:
             response_object = response.json();
-            if response_object['status'] is 'OK' and len(response_object['results'] > 0):
+            if response_object['status'] == 'OK' and len(response_object['results']) > 0:
                 location = response_object['results'][0]['geometry']['location']
                 if location is not None:
                     return location['lat'], location['lng'], street_accurate
