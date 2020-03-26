@@ -52,6 +52,7 @@ values_to_convert = {
     'smoking': {
         'אף פעם': 0,
         'עישנתי בעבר, לפני יותר מחמש שנים': 1,
+        'עישנתי בעבר, הפסקתי לפני פחות מחמש שנים': 1,
         'עישנתי בעבר, בחמש השנים האחרונות': 2,
         'עישון יומיומי': 3
     },
@@ -66,3 +67,5 @@ values_to_convert = {
 }
 
 gps_source_file = './gps_data.json'
+gps_url = 'https://maps.googleapis.com/maps/api/geocode/json'
+gps_url_key = 'AIzaSyB1uB8uLeoWiyIoxsK-2GlnK2WIrqKPLss'
