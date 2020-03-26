@@ -217,7 +217,6 @@ class GPSGenerator:
 
     @staticmethod
     def get_coords_from_web(street, city):
-        time.sleep(1)
         street_accurate = True
         if len(street) > 0:
             street_accurate = False
@@ -227,8 +226,7 @@ class GPSGenerator:
             if response_object['status'] is 'OK' and len(response_object['results'] > 0):
                 location = response_object['results'][0]['geometry']['location']
                 if location is not None:
-                    return location['lat'], location['lng']
-                return response_object['results'][0]['geometry']['location']
+                    return location['lat'], location['lng'], street_accurate
             else:
                 return 0, 0, 0
         else:
