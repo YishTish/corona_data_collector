@@ -77,7 +77,7 @@ def log_database_data(rows, filename):
 
 def add_gps_coordinates(data_filename):
     try:
-        gps_generator = GPSGenerator(False)
+        gps_generator = GPSGenerator(True)
         data_with_coords = gps_generator.load_gps_coordinates(data_filename)
         # load_gps_coordinates(data_filename)
         filename_with_coords = data_filename[:data_filename.find('.')] + '_with_coords.csv'
