@@ -134,8 +134,13 @@ class GPSGenerator:
             first_line = True
             street_index = None
             city_index = None
+            line_counter = 0
             with open(bot_answers_file_path, 'r') as answers:
                 for line in answers.readlines():
+                    line_counter += 1
+                    if line_counter % 10000 == 0:
+                        print(f'collected addresses for {line_counter} records. {from_list} from memory,'
+                              f' {from_web} from web')
                     fields = line.split(',')
                     if first_line:
                         street_index = fields.index('street')
