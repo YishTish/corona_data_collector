@@ -112,5 +112,6 @@ values_to_convert = {
 gps_source_file = './gps_data.json'
 gps_url = 'https://maps.googleapis.com/maps/api/geocode/json'
 gps_url_key = gps_url_key
+use_gps_finder = False
 query_batch_size = 10000
 process_max_rows = 100000
