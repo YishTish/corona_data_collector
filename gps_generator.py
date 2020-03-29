@@ -8,6 +8,23 @@ FROM_WEB = 0
 FROM_LIST = 1
 
 
+def get_coords_from_web(street, city):
+    street_accurate = street != city
+    response = requests.get(f'{gps_url}?key={gps_url_key}&address={street} {city}')
+    if response.status_code == 200:
+        response_object = response.json();
+        if response_object['status'] == 'OK' and len(response_object['results']) > 0:
+            location = response_object['results'][0]['geometry']['location']
+            if location is not None:
+                return location['lat'], location['lng'], int(street_accurate)
+        else:
+            return 0, 0, 0
+    else:
+        print('failed to get gps data from web, code received: ', response.status_code)
+        print(response.content)
+        return -1, -1, -1
+
+
 class GPSGenerator:
     coords = None
     get_from_web = False
@@ -34,11 +51,10 @@ class GPSGenerator:
                     address_key = f"{street}_{city}"
                     self.coords[address_key] = {
                         'lat': line_items[3],
-                        'lng': line_items[4][:len(line_items[4])-1],
+                        'lng': line_items[4][:len(line_items[4]) - 1],
                         'street_accurate': 0
                     }
         self.save_gps_coords_file()
-
 
     @staticmethod
     def get_coordinates_from_file(source_file, target_file):
@@ -58,10 +74,10 @@ class GPSGenerator:
                         if gps_list.get(address_key) is None:
                             gps_list[address_key] = {
                                 'lat': line_items[3],
-                                'lng': line_items[4][:len(line_items[4])-1]
+                                'lng': line_items[4][:len(line_items[4]) - 1]
                             }
-                        #else:
-                         #   print('{} was found in the existing list'.format(address_key))
+                        # else:
+                        #   print('{} was found in the existing list'.format(address_key))
             gps_json = json.dumps(gps_list, indent=4, ensure_ascii=False).encode('utf8')
             gps_file = open(target_file, 'w', encoding='utf-8')
             print(gps_json.decode(), file=gps_file)
@@ -70,7 +86,7 @@ class GPSGenerator:
         finally:
             file.close()
             gps_file.close()
-            #print('gps_coords written to file')
+            # print('gps_coords written to file')
 
     def save_gps_coords_file(self):
         try:
@@ -97,10 +113,8 @@ class GPSGenerator:
             return f'{lat},{lng},{accurate}', FROM_LIST
         else:
             if self.get_from_web:
-                lat, lng, accurate = self.get_coords_from_web(street, city)
-                if lat is -1:
-                    self.get_from_web = False
-                elif lat is not 0:
+                lat, lng, accurate = get_coords_from_web(street, city)
+                if lat not in [0, -1]:
                     self.coords[f'{street}_{city}'] = {
                         'lat': lat,
                         'lng': lng,
@@ -111,18 +125,15 @@ class GPSGenerator:
             if lat is not 0:
                 return f'{lat},{lng},{accurate}', FROM_LIST
             if self.get_from_web:
-                lat, lng, accurate = self.get_coords_from_web(city, city)
-                if lat is -1:
-                    # self.get_from_web = False
-                    lat, lng, accurate = 0, 0, 0
-                elif lat is not 0:
+                lat, lng, accurate = get_coords_from_web(city, city)
+                if lat not in [0, 1]:
                     self.coords[f'{city}_{city}'] = {
                         'lat': lat,
                         'lng': lng,
                         'street_accurate': int(accurate)
                     }
                     return f'{lat},{lng},{int(accurate)}', FROM_WEB
-            return '0,0,0', NOT_FOUND
+            return ',,', NOT_FOUND
 
     def load_gps_coordinates(self, bot_answers_file_path):
         gps_file_content = None
@@ -155,7 +166,7 @@ class GPSGenerator:
                             from_list += 1
                         if source == NOT_FOUND:
                             not_found += 1
-                        data_with_coords.append(f'{line[:len(line)-1]},{coords_csv}' + '\n')
+                        data_with_coords.append(f'{line[:len(line) - 1]},{coords_csv}' + '\n')
 
             self.save_gps_coords_file()
         except Exception as err:
@@ -166,22 +177,22 @@ class GPSGenerator:
                   f' addresses not found: {not_found}')
             return data_with_coords
 
-    @staticmethod
-    def get_coords_from_web(street, city):
-        street_accurate = street != city
-        response = requests.get(f'{gps_url}?key={gps_url_key}&address={street} {city}')
-        if response.status_code == 200:
-            response_object = response.json();
-            if response_object['status'] == 'OK' and len(response_object['results']) > 0:
-                location = response_object['results'][0]['geometry']['location']
-                if location is not None:
-                    return location['lat'], location['lng'], int(street_accurate)
-            else:
-                return 0, 0, 0
-        else:
-            print('failed to get gps data from web, code received: ', response.status_code)
-            print(response.content)
-            return -1, -1, -1
+    # @staticmethod
+    # def get_coords_from_web(street, city):
+    #     street_accurate = street != city
+    #     response = requests.get(f'{gps_url}?key={gps_url_key}&address={street} {city}')
+    #     if response.status_code == 200:
+    #         response_object = response.json();
+    #         if response_object['status'] == 'OK' and len(response_object['results']) > 0:
+    #             location = response_object['results'][0]['geometry']['location']
+    #             if location is not None:
+    #                 return location['lat'], location['lng'], int(street_accurate)
+    #         else:
+    #             return 0, 0, 0
+    #     else:
+    #         print('failed to get gps data from web, code received: ', response.status_code)
+    #         print(response.content)
+    #         return -1, -1, -1
 
 
 if __name__ == '__main__':
