@@ -143,7 +143,6 @@ class GPSGenerator:
                         first_line = False
                     else:
                         coords_csv, source = self.get_coordinates(fields[street_index], fields[city_index])
-
                         if source == FROM_WEB:
                             from_web += 1
                         if source == FROM_LIST:

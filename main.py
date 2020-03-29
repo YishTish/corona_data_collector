@@ -1,6 +1,6 @@
 import psycopg2
 from datetime import datetime
-from config import db_settings, query_batch_size, process_max_rows
+from config import db_settings, query_batch_size, process_max_rows, use_gps_finder
 from DBToFileWriter import DBToFileWriter
 
 
@@ -51,5 +51,5 @@ if __name__ == '__main__':
             db_to_file_writer.log_database_data()
         else:
             break
-    db_to_file_writer.add_gps_coordinates()
+    db_to_file_writer.add_gps_coordinates(use_gps_finder)
     print('Operation completed successfully')

@@ -68,9 +68,9 @@ class DBToFileWriter:
             print(f'data written to file {self.target_filename}. Number of rows: {len(self.resultSet)}.'
                   f' last id: {self.resultSet[- 1]["id"]}')
 
-    def add_gps_coordinates(self):
+    def add_gps_coordinates(self, use_web_finder=False):
         try:
-            gps_generator = GPSGenerator(False)
+            gps_generator = GPSGenerator(use_web_finder)
             data_with_coords = gps_generator.load_gps_coordinates(self.target_filename)
             dot_index = self.target_filename.find('.')
             filename_with_coords = self.target_filename[:dot_index] + '_with_coords.csv'
