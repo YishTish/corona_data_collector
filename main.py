@@ -52,5 +52,6 @@ if __name__ == '__main__':
             db_to_file_writer.log_database_data()
         else:
             break
+    print('Adding GPS coordinates to records selected')
     db_to_file_writer.add_gps_coordinates(use_gps_finder)
     print('Operation completed successfully')
