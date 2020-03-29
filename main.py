@@ -1,6 +1,7 @@
 import psycopg2
 from datetime import datetime
-from config import db_settings, query_batch_size, process_max_rows, use_gps_finder
+from config import db_settings, query_batch_size, process_max_rows, use_gps_finder, supported_questions_version,\
+    query_from_date
 from DBToFileWriter import DBToFileWriter
 
 
@@ -17,7 +18,7 @@ def run_query(host, user, password, num_of_records=100, created_greater_than='19
         records = cursor.fetchall()
         for record in records:
             if record[2] is not None and len(record[2]) > 0\
-                    and record[2]['version'] in ['0.1.0', '0.2.0', '0.2.1', '1.0.1', '1.1.0']:
+                    and record[2]['version'] in supported_questions_version:
                 data_dict = record[2]
                 data_dict['id'] = record[0]
                 data_dict['created'] = record[1].isoformat()
@@ -34,7 +35,7 @@ def run_query(host, user, password, num_of_records=100, created_greater_than='19
 
 
 if __name__ == '__main__':
-    last_created = '2020-03-25T15:04:39.049837'
+    last_created = query_from_date
     file_unique_signature = datetime.today().strftime('%Y-%m-%d_%H%M')
     db_to_file_writer = DBToFileWriter()
     db_to_file_writer.target_filename = 'corona_bot_answers_{}.csv'.format(file_unique_signature)

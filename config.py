@@ -59,12 +59,21 @@ answer_titles = {
     'met_under_18': 'met_under_18',
     'met_above_18': 'met_above_18',
     'numPreviousReports': 'num_previous_reports',
+    'dateFirstReport': 'date_first_report'
 }
 
 keys_to_convert = {
     'exposure_status': 'insulation_status',
     'insulation_reason': 'insulation_status',
+    'precondition_chronic_diabetes': 'chronic_diabetes',
+    'precondition_chronic_hypertension': 'chronic_hypertension',
+    'precondition_chronic_ischemic_heart_disease_or_stroke':'chronic_ischemic_heart_disease_or_stroke',
+    'precondition_chronic_lung_disease': 'chronic_lung_disease',
+    'precondition_chronic_cancer': 'chronic_cancer',
+    'precondition_chronic_kidney_failure': 'chronic_kidney_failure',
+    'precondition_chronic_immune_system_suppression': 'chronic_immune_system_suppression',
     'hospitalized': 'diagnosed_location',
+    'precondition_smoking': 'smoking',
 }
 
 values_to_convert = {
@@ -115,3 +124,5 @@ gps_url_key = gps_url_key
 use_gps_finder = False
 query_batch_size = 10000
 process_max_rows = 100000
+supported_questions_version = ['0.1.0', '0.2.0', '0.2.1', '1.0.1', '1.1.0', '2.0.0']
+query_from_date = '2020-01-01 00:00:00'
