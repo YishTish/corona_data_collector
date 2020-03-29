@@ -81,16 +81,15 @@ class GPSGenerator:
             print('failed to save coordinates dict to file', err)
 
     def get_coords_from_list(self, street, city):
-        lat, lng, accurate = 0,0,0
+        lat, lng = 0, 0
+        accurate = street != city
         street_city = f'{street}_{city}'
         if street_city in self.coords:
             lat = self.coords[street_city]['lat']
             lng = self.coords[street_city]['lng']
-            if 'street_accurate' in self.coords[street_city]:
+            if street != city and 'street_accurate' in self.coords[street_city]:
                 accurate = self.coords[street_city]['street_accurate']
-            else:
-                accurate = -1
-        return lat, lng, accurate
+        return lat, lng, int(accurate)
 
     def get_coordinates(self, street, city):
         lat, lng, accurate = self.get_coords_from_list(street, city)
@@ -152,60 +151,7 @@ class GPSGenerator:
                         if source == NOT_FOUND:
                             not_found += 1
                         data_with_coords.append(f'{line[:len(line)-1]},{coords_csv}' + '\n')
-                        # coords_key = '{}_{}'.format(fields[street_index], fields[city_index])
-                        # lat, lng, accurate = get_coords_from_list(fields[street_index], fields[city_index], coords)
-                        # if lat == 0:
-                        #     lat, lng, accurate = get_coords_from_web(fields[street_index], fields[city_index])
-                        #     if lat == 0:
-                        #         coords_key = '{}_{}'.format(fields[city_index], fields[city_index])
-                        #         lat, lng, accurate = get_coords_from_list(fields[city_index], fields[city_index], coords)
-                        #         if lat == 0:
-                        #             lat, lng, accurate = get_coords_from_web(fields[city_index], fields[city_index])
-                        #             if lat is not 0:
-                        #                 coords[coords_key] = {
-                        #                     'lat': lat,
-                        #                     'lng': lng,
-                        #                     'street_accurate': accurate
-                        #                 }
-                        #             else:
-                        #                 addresses_from_web += 1
-                        #         else:
-                        #             addresses_from_list += 1
-                        #     else:
-                        #         addresses_from_web += 1
-                        #         coords[coords_key] = {
-                        #             'lat': lat,
-                        #             'lng': lng,
-                        #             'street_accurate': accurate
-                        #         }
-                        # else:
-                        #     addresses_from_list += 1
-                        # street_city = '{}_{}'.format(fields[street_index], fields[city_index])
-                        # if street_city in coords:
-                        #     addresses_from_list += 1
-                        #     print('{} is a match!'.format(street_city))
-                        #     lat = coords[street_city]['lat']
-                        #     lng = coords[street_city]['lng']
-                        #     if 'street_accurate' in coords[street_city]:
-                        #         accurate = coords[street_city]['street_accurate']
-                        #     else:
-                        #         accurate = -1
-                        # else:
-                        #     addresses_from_web += 1
-                        #     lat, lng, accurate = get_coords_from_web(fields[street_index], fields[city_index])
-                        #     if lat == 0 and lng == 0:
-                        #         if city in coords:
-                        #             lat = coords[city]['lat']
-                        #             lng = coords[city]['lng']
-                        #             accurate = coords[city].get('street_accurate', 0)
-                        #         else:
-                        #             if ('{}_{}'.format(city, city)) in coords:
-                        # if isinstance(lat, int) and lat < 0:
-                        #     self.save_gps_coords_file(coords, gps_source_file)
-                        #     print('failed to get gps data from web. Probably exceeded limits')
-                        #     return data_with_coords
-                        # accurate = int(accurate)
-                        # data_with_coords.append(line[:len(line)-1] + ',{},{},{}\n'.format(lat, lng, accurate))
+
             self.save_gps_coords_file()
         except Exception as err:
             print('failed to load gps coordinates', err)
@@ -217,16 +163,14 @@ class GPSGenerator:
 
     @staticmethod
     def get_coords_from_web(street, city):
-        street_accurate = False
-        if len(street) > 0:
-            street_accurate = True
+        street_accurate = street != city
         response = requests.get(f'{gps_url}?key={gps_url_key}&address={street} {city}')
         if response.status_code == 200:
             response_object = response.json();
             if response_object['status'] == 'OK' and len(response_object['results']) > 0:
                 location = response_object['results'][0]['geometry']['location']
                 if location is not None:
-                    return location['lat'], location['lng'], street_accurate
+                    return location['lat'], location['lng'], int(street_accurate)
             else:
                 return 0, 0, 0
         else:
