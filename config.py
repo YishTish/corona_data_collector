@@ -123,6 +123,6 @@ gps_url = 'https://maps.googleapis.com/maps/api/geocode/json'
 gps_url_key = gps_url_key
 use_gps_finder = False
 query_batch_size = 10000
-process_max_rows = 100000
+process_max_rows = 1000000
 supported_questions_version = ['0.1.0', '0.2.0', '0.2.1', '1.0.1', '1.1.0', '2.0.0']
 query_from_date = '2020-01-01 00:00:00'
