@@ -113,7 +113,8 @@ class GPSGenerator:
             if self.get_from_web:
                 lat, lng, accurate = self.get_coords_from_web(city, city)
                 if lat is -1:
-                    self.get_from_web = False
+                    # self.get_from_web = False
+                    lat, lng, accurate = 0, 0, 0
                 elif lat is not 0:
                     self.coords[f'{city}_{city}'] = {
                         'lat': lat,

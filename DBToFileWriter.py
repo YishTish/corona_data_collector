@@ -19,6 +19,21 @@ def manipulate_values_versions(db_row):
     return db_row
 
 
+def write_answer_keys(target_filename, prefix='', suffix='', ):
+    answer_keys_line = ''
+    for key, value in answer_titles.items():
+        if len(answer_keys_line) == 0:
+            answer_keys_line = value
+        else:
+            answer_keys_line = f'{answer_keys_line},{value}'
+    if len(prefix) > 0:
+        prefix = f'{prefix},'
+    if len(suffix) > 0:
+        suffix = f',{suffix}'
+    with open(target_filename, 'w') as target_file:
+        target_file.write(f'{prefix}{answer_keys_line}{suffix}\n')
+
+
 def convert_values(db_row):
     db_row = manipulate_values_versions(db_row)
     for convert_key in keys_to_convert:
@@ -36,20 +51,6 @@ def convert_values(db_row):
 class DBToFileWriter:
     resultSet = []
     target_filename = ''
-
-    def write_answer_keys(self, prefix='', suffix=''):
-        answer_keys_line = ''
-        for key, value in answer_titles.items():
-            if len(answer_keys_line) == 0:
-                answer_keys_line = value
-            else:
-                answer_keys_line = f'{answer_keys_line},{value}'
-        if len(prefix) > 0:
-            prefix = f'{prefix},'
-        if len(suffix) > 0:
-            suffix = f',{suffix}'
-        with open(self.target_filename, 'w') as target_file:
-            target_file.write(f'{prefix}{answer_keys_line}{suffix}\n')
 
     def log_database_data(self):
         fixed_row = ''
@@ -75,7 +76,8 @@ class DBToFileWriter:
             dot_index = self.target_filename.find('.')
             filename_with_coords = self.target_filename[:dot_index] + '_with_coords.csv'
             with open(filename_with_coords, 'w') as file_with_coords:
-                self.write_answer_keys(suffix='address_longitude,address_latitude,address_street_accurate')
+                write_answer_keys(target_filename=filename_with_coords, suffix='address_longitude,address_latitude,address_street_accurate')
+            with open(filename_with_coords, 'a') as file_with_coords:
                 file_with_coords.writelines(data_with_coords)
             print(f'Data with GPS coordinates was written to {filename_with_coords}')
         except Exception as err:

@@ -2,7 +2,7 @@ import psycopg2
 from datetime import datetime
 from config import db_settings, query_batch_size, process_max_rows, use_gps_finder, supported_questions_version,\
     query_from_date
-from DBToFileWriter import DBToFileWriter
+from DBToFileWriter import DBToFileWriter, write_answer_keys
 
 
 def run_query(host, user, password, num_of_records=100, created_greater_than='1970-01-01 00:00:00'):
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     file_unique_signature = datetime.today().strftime('%Y-%m-%d_%H%M')
     db_to_file_writer = DBToFileWriter()
     db_to_file_writer.target_filename = 'corona_bot_answers_{}.csv'.format(file_unique_signature)
-    db_to_file_writer.write_answer_keys()
+    write_answer_keys(db_to_file_writer.target_filename)
     counter = 0
     while counter < process_max_rows:
         collected_rows = run_query(db_settings['host'], db_settings['username'], db_settings['password'],
