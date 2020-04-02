@@ -1,9 +1,12 @@
-from gps_url_key import gps_url_key
+from keys import gps_url_key, db_pass
 db_settings = {
     "host": "35.230.137.198",
     "port": 5432,
     "username": "readonly",
-    "password": "riePoo7phohgaiPh"
+    "password": db_pass,
+    "sslrootcert": './certs/server-ca.pem',
+    "sslcert": './certs/client-cert.pem',
+    "sslkey": './certs/client-key.pem',
 }
 answer_titles = {
     'id': 'id',
@@ -121,8 +124,11 @@ values_to_convert = {
 gps_source_file = './gps_data.json'
 gps_url = 'https://maps.googleapis.com/maps/api/geocode/json'
 gps_url_key = gps_url_key
-use_gps_finder = False
+use_gps_finder = True
 query_batch_size = 10000
 process_max_rows = 1000000
-supported_questions_version = ['0.1.0', '0.2.0', '0.2.1', '1.0.1', '1.1.0', '2.0.0']
-query_from_date = '2020-01-01 00:00:00'
+# query_batch_size = 10
+# process_max_rows = 50
+supported_questions_version = ['0.1.0', '0.2.0', '0.2.1', '1.0.1', '1.1.0', '2.0.0', '2.0.1',
+                               '2.0.2', '2.0.3,' '2.0.4', '2.0.5']
+query_from_date = '2020-04-01 00:00:00'

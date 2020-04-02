@@ -35,39 +35,55 @@ def write_answer_keys(target_filename, prefix='', suffix='', ):
 
 
 def convert_values(db_row):
-    db_row = manipulate_values_versions(db_row)
-    for convert_key in keys_to_convert:
-        if convert_key in db_row:
-            db_row[keys_to_convert[convert_key]] = db_row[convert_key]
-            db_row.pop(convert_key)
-    for key, value in db_row.items():
-        if key in values_to_convert:
-            db_row[key] = values_to_convert[key][value]
-        if type(db_row[key]) == bool:
-            db_row[key] = int(db_row[key])
-    return db_row
+    try:
+        if 'alias' in db_row:
+            db_row.pop('alias')
+        db_row = manipulate_values_versions(db_row)
+        for convert_key in keys_to_convert:
+            if convert_key in db_row:
+                db_row[keys_to_convert[convert_key]] = db_row[convert_key]
+                db_row.pop(convert_key)
+        for key, value in db_row.items():
+            if key in values_to_convert:
+                db_row[key] = values_to_convert[key][value]
+            if type(db_row[key]) == bool:
+                db_row[key] = int(db_row[key])
+        return db_row
+    except Exception as err:
+        print(f'error in converting the following row: ', db_row, err)
+        return None
 
 
 class DBToFileWriter:
     resultSet = []
     target_filename = ''
+    last_created_record = None
+    broken_records = 0
 
     def log_database_data(self):
-        fixed_row = ''
-        try:
-            lines = []
-            for row in self.resultSet:
-                fixed_row = convert_values(row)
-                lines.append(collect_row(fixed_row) + "\n")
-            with open(self.target_filename, 'a', encoding="utf-8") as file:
-                file.writelines(lines)
-        except Exception as err:
-            print('failed to write data to file - ', err)
-            print('failing row: ', fixed_row)
-            exit(1)
-        finally:
-            print(f'data written to file {self.target_filename}. Number of rows: {len(self.resultSet)}.'
-                  f' last id: {self.resultSet[- 1]["id"]}')
+            fixed_row = ''
+            try:
+                lines = []
+                for row in self.resultSet:
+                    fixed_row = convert_values(row)
+                    if fixed_row is None:
+                        self.broken_records += 1
+                        continue
+                    collected_row = collect_row(fixed_row)
+                    if len(collected_row.split(',')) == len(answer_titles):
+                        lines.append(collected_row + "\n")
+                    else:
+                        print('skipped row: ', collected_row)
+                with open(self.target_filename, 'a', encoding="utf-8") as file:
+                    file.writelines(lines)
+            except Exception as err:
+                print('failed to write data to file - ', err)
+                print('failing row: ', fixed_row)
+                exit(1)
+            finally:
+                print(f'data written to file {self.target_filename}. Number of rows: {len(self.resultSet)}. '
+                      f'last id: {self.resultSet[- 1]["id"]}. Number of records retrieved but could not be evaluated: '
+                      f'{self.broken_records}')
 
     def add_gps_coordinates(self, use_web_finder=False):
         try:
@@ -75,10 +91,20 @@ class DBToFileWriter:
             data_with_coords = gps_generator.load_gps_coordinates(self.target_filename)
             dot_index = self.target_filename.find('.')
             filename_with_coords = self.target_filename[:dot_index] + '_with_coords.csv'
-            with open(filename_with_coords, 'w') as file_with_coords:
-                write_answer_keys(target_filename=filename_with_coords, suffix='address_longitude,address_latitude,address_street_accurate')
+            write_answer_keys(target_filename=filename_with_coords, suffix='lat,lng,address_street_accurate')
             with open(filename_with_coords, 'a') as file_with_coords:
                 file_with_coords.writelines(data_with_coords)
             print(f'Data with GPS coordinates was written to {filename_with_coords}')
         except Exception as err:
             print('failed to load coordinates', err)
+
+    def get_last_created(self):
+        value_to_return = ''
+        with open(self.target_filename, 'r') as f:
+            file_lines = f.readlines()
+            last_line = file_lines[-1]
+        if last_line:
+            created_index = list(answer_titles).index('created')
+            last_line_array = last_line.split(',')
+            value_to_return = last_line_array[created_index]
+        return value_to_return
