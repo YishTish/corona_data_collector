@@ -129,6 +129,16 @@ query_batch_size = 10000
 process_max_rows = 1000000
 # query_batch_size = 10
 # process_max_rows = 50
-supported_questions_version = ['0.1.0', '0.2.0', '0.2.1', '1.0.1', '1.1.0', '2.0.0', '2.0.1',
-                               '2.0.2', '2.0.3,' '2.0.4', '2.0.5']
-query_from_date = '2020-04-01 00:00:00'
+supported_questions_version = ['0.1.0',
+                               '0.2.0',
+                               '0.2.1',
+                               '1.0.1',
+                               '1.1.0',
+                               '2.0.0',
+                               '2.0.1',
+                               '2.0.2',
+                               '2.0.3',
+                               '2.0.4',
+                               '2.0.5',
+                               '2.1.0']
+query_from_date = '2020-04-02 00:00:00'
