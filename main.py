@@ -6,7 +6,7 @@ from config import db_settings, query_batch_size, process_max_rows, use_gps_find
 from DBToFileWriter import DBToFileWriter, write_answer_keys
 
 
-def run_query(settings,  num_of_records=100, created_greater_than='1970-01-01 00:00:00'):
+def run_query(settings, min_date, max_date, num_of_records=100):
     connection = None
     cursor = None
     try:
@@ -15,14 +15,18 @@ def run_query(settings,  num_of_records=100, created_greater_than='1970-01-01 00
                                       sslmode='verify-ca', sslrootcert=settings['sslrootcert'],
                                       sslcert=settings['sslcert'], sslkey=settings['sslkey'], database="reports")
         cursor = connection.cursor()
+        supported_versions_string = ''
+        for version in supported_questions_version:
+            supported_versions_string += f'\'{version}\','
         cursor.execute(
-            f'SELECT * FROM reports where created > \'{created_greater_than}\' '
-            f'and created < \'2020-04-01T23:59:59\' order by id limit {num_of_records}'
+            f'SELECT * FROM reports '
+            f'where created > \'{min_date}\' and created < \'{max_date}\''
+            # f'and data->>\'version\' in ({supported_versions_string[0:-1]}) '
+            f' limit {num_of_records}'
         )
         records = cursor.fetchall()
         for record in records:
-            if record[2] is not None and len(record[2]) > 0\
-                    and record[2]['version'] in supported_questions_version:
+            if record[2] is not None and len(record[2]) > 0:
                 data_dict = record[2]
                 data_dict['id'] = record[0]
                 data_dict['created'] = record[1].isoformat()
@@ -43,18 +47,22 @@ if __name__ == '__main__':
     continue_running = True
     while continue_running:
         try:
-            file_unique_signature = datetime.today().strftime('%Y-%m-%d_%H%M')
+            file_unique_signature = datetime.now().strftime('%Y-%m-%d_%H%M')
             db_to_file_writer = DBToFileWriter()
             db_to_file_writer.target_filename = 'corona_bot_answers_{}.csv'.format(file_unique_signature)
             write_answer_keys(db_to_file_writer.target_filename)
             counter = 0
+            yesterday = datetime.now() - timedelta(days=1)
+            from_date = yesterday.strftime('%Y-%m-%d' + ' 00:00:00')
+            to_date = datetime.now().strftime('%Y-%m-%d') + ' 00:00:00'
             while counter < process_max_rows:
-                collected_rows = run_query(db_settings, query_batch_size, last_created)
+                today_string = datetime.now().strftime('%Y-%m-%d')
+                collected_rows = run_query(db_settings, from_date, to_date, query_batch_size)
                 if collected_rows is not None and len(collected_rows) > 0:
                     db_to_file_writer.resultSet = collected_rows
                     counter += len(collected_rows)
                     lowest_id = collected_rows[- 1]['id']
-                    last_created = collected_rows[-1]['created']
+                    from_date = collected_rows[-1]['created']
                     db_to_file_writer.log_database_data()
                 else:
                     break

@@ -56,7 +56,7 @@ class TestConsistentLength(unittest.TestCase):
     def test_file_length_consistent(self):
         first = True
         row_length = 0
-        with open('../corona_bot_answers_2020-04-01_0906.csv', 'r') as generated_file:
+        with open('../corona_bot_answers_2020-04-03_0928_with_coords.csv', 'r') as generated_file:
             content = generated_file.readlines()
         for line in content:
             length = len(line.split(','))
