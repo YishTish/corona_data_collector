@@ -43,41 +43,27 @@ def run_query(settings, min_date, max_date, num_of_records=100):
 
 
 if __name__ == '__main__':
-    last_created = query_from_date
-    continue_running = True
-    while continue_running:
-        try:
-            file_unique_signature = datetime.now().strftime('%Y-%m-%d_%H%M')
-            db_to_file_writer = DBToFileWriter()
-            db_to_file_writer.target_filename = 'corona_bot_answers_{}.csv'.format(file_unique_signature)
-            write_answer_keys(db_to_file_writer.target_filename)
-            counter = 0
-            yesterday = datetime.now() - timedelta(days=1)
-            from_date = yesterday.strftime('%Y-%m-%d' + ' 00:00:00')
-            to_date = datetime.now().strftime('%Y-%m-%d') + ' 00:00:00'
-            while counter < process_max_rows:
-                today_string = datetime.now().strftime('%Y-%m-%d')
-                collected_rows = run_query(db_settings, from_date, to_date, query_batch_size)
-                if collected_rows is not None and len(collected_rows) > 0:
-                    db_to_file_writer.resultSet = collected_rows
-                    counter += len(collected_rows)
-                    lowest_id = collected_rows[- 1]['id']
-                    from_date = collected_rows[-1]['created']
-                    db_to_file_writer.log_database_data()
-                else:
-                    break
+    try:
+        file_unique_signature = datetime.now().strftime('%Y-%m-%d_%H%M')
+        db_to_file_writer = DBToFileWriter(f'corona_bot_answers_{file_unique_signature}.csv')
+        counter = 0
+        yesterday = datetime.now() - timedelta(days=1)
+        from_date = yesterday.strftime('%Y-%m-%d' + ' 00:00:00')
+        to_date = datetime.now().strftime('%Y-%m-%d') + ' 00:00:00'
+        while counter < process_max_rows:
+            today_string = datetime.now().strftime('%Y-%m-%d')
+            collected_rows = run_query(db_settings, from_date, to_date, query_batch_size)
+            if collected_rows is not None and len(collected_rows) > 0:
+                db_to_file_writer.resultSet = collected_rows
+                counter += len(collected_rows)
+                from_date = collected_rows[-1]['created']
+                db_to_file_writer.log_database_data()
+            else:
+                break
+        if counter > 0:
             print('Adding GPS coordinates to records selected')
-            if counter > 0:
-                db_to_file_writer.add_gps_coordinates(use_gps_finder)
-                print('Operation cycle completed successfully')
-                process_last_created = db_to_file_writer.get_last_created()
-                if process_last_created != '':
-                    last_created = process_last_created
-                else:
-                    print('could not get the last record\'s create date. Next process will run with old date')
-            print(f'the next cycle will start at {datetime.now() + timedelta(hours=1)} with the first record created'
-                  f' after {last_created}')
-            time.sleep(60 * 60)
-        except Exception as err:
-            print('failed to run data collector: ', err)
-            continue_running = False
+            db_to_file_writer.add_gps_coordinates(use_gps_finder)
+            print('Operation cycle completed successfully')
+    except Exception as err:
+        print('failed to run data collector: ', err)
+        continue_running = False

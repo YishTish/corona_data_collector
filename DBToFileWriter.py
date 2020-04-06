@@ -60,6 +60,10 @@ class DBToFileWriter:
     last_created_record = None
     broken_records = 0
 
+    def __init__(self, target_filename):
+        self.target_filename = target_filename
+        write_answer_keys(self.target_filename)
+
     def log_database_data(self):
             fixed_row = ''
             try:

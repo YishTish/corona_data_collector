@@ -62,7 +62,8 @@ answer_titles = {
     'met_under_18': 'met_under_18',
     'met_above_18': 'met_above_18',
     'numPreviousReports': 'num_previous_reports',
-    'dateFirstReport': 'date_first_report'
+    'dateFirstReport': 'date_first_report',
+    'medical_staff_member': 'medical_staff_member',
 }
 
 keys_to_convert = {
@@ -118,7 +119,7 @@ values_to_convert = {
     'general_feeling': {
         'feel_good': 0,
         'feel_bad': 1,
-    }
+    },
 }
 
 gps_source_file = './gps_data.json'
