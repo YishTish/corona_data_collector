@@ -80,6 +80,7 @@ keys_to_convert = {
     'precondition_smoking': 'smoking',
 }
 
+
 values_to_convert = {
     'sex': {
         'male': 0,
@@ -120,16 +121,17 @@ values_to_convert = {
         'feel_good': 0,
         'feel_bad': 1,
     },
+    'medical_staff_member': {
+        'false': 0,
+        'true': 1
+    }
 }
-
 gps_source_file = './gps_data.json'
 gps_url = 'https://maps.googleapis.com/maps/api/geocode/json'
 gps_url_key = gps_url_key
 use_gps_finder = True
 query_batch_size = 10000
 process_max_rows = 1000000
-# query_batch_size = 10
-# process_max_rows = 50
 supported_questions_version = ['0.1.0',
                                '0.2.0',
                                '0.2.1',
@@ -141,5 +143,9 @@ supported_questions_version = ['0.1.0',
                                '2.0.3',
                                '2.0.4',
                                '2.0.5',
-                               '2.1.0']
+                               '2.1.0',
+                               '2.2.0',
+                               '2.2.2']
 query_from_date = '2020-04-02 00:00:00'
+destination_archive = "./archive"
+destination_output = "./bot_data"

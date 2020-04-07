@@ -1,4 +1,5 @@
-from config import answer_titles, values_to_convert, keys_to_convert
+import os
+from config import answer_titles, values_to_convert, keys_to_convert, destination_archive, destination_output
 from gps_generator import GPSGenerator
 
 
@@ -57,6 +58,7 @@ def convert_values(db_row):
 class DBToFileWriter:
     resultSet = []
     target_filename = ''
+    filename_with_coords = ''
     last_created_record = None
     broken_records = 0
 
@@ -94,11 +96,11 @@ class DBToFileWriter:
             gps_generator = GPSGenerator(use_web_finder)
             data_with_coords = gps_generator.load_gps_coordinates(self.target_filename)
             dot_index = self.target_filename.find('.')
-            filename_with_coords = self.target_filename[:dot_index] + '_with_coords.csv'
-            write_answer_keys(target_filename=filename_with_coords, suffix='lat,lng,address_street_accurate')
-            with open(filename_with_coords, 'a') as file_with_coords:
+            self.filename_with_coords = self.target_filename[:dot_index] + '_with_coords.csv'
+            write_answer_keys(target_filename=self.filename_with_coords, suffix='lat,lng,address_street_accurate')
+            with open(self.filename_with_coords, 'a') as file_with_coords:
                 file_with_coords.writelines(data_with_coords)
-            print(f'Data with GPS coordinates was written to {filename_with_coords}')
+            print(f'Data with GPS coordinates was written to {self.filename_with_coords}')
         except Exception as err:
             print('failed to load coordinates', err)
 
@@ -112,3 +114,7 @@ class DBToFileWriter:
             last_line_array = last_line.split(',')
             value_to_return = last_line_array[created_index]
         return value_to_return
+
+    def clear_output_files(self):
+        os.replace(self.target_filename, f'{destination_archive}/{self.target_filename}')
+        os.replace(self.filename_with_coords, f'{destination_output}/{self.filename_with_coords}')
