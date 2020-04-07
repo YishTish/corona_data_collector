@@ -116,5 +116,5 @@ class DBToFileWriter:
         return value_to_return
 
     def clear_output_files(self):
-        os.replace(self.target_filename, f'{destination_archive}/{self.target_filename}')
+        os.remove(self.target_filename)
         os.replace(self.filename_with_coords, f'{destination_output}/{self.filename_with_coords}')

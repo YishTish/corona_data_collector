@@ -1,11 +1,12 @@
 import optparse
 import json
+import os
 from datetime import datetime, timedelta
 
 import psycopg2
 
 from DBToFileWriter import DBToFileWriter
-from config import db_settings, query_batch_size, use_gps_finder, supported_questions_version
+from config import db_settings, query_batch_size, use_gps_finder, supported_questions_version, destination_archive
 
 
 def run_query(settings, min_date, max_date, num_of_records=100):
@@ -75,6 +76,8 @@ if __name__ == '__main__':
             with open(options.file_path, "r") as data_source_file:
                 db_to_file_writer.resultSet = json.load(data_source_file)
             db_to_file_writer.log_database_data()
+            source_filename = options.file_path.split('/')[-1]
+            os.rename(options.file_path, f'{destination_archive}/{source_filename}')
         elif options.source == 'db':
             from_date, to_date = get_initial_db_dates()
             collected_rows = run_query(db_settings, from_date, to_date, query_batch_size)
