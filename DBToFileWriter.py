@@ -1,5 +1,8 @@
 import os
-from config import answer_titles, values_to_convert, keys_to_convert, destination_archive, destination_output
+import shutil
+import telegram
+from config import answer_titles, values_to_convert, keys_to_convert, destination_output, telegram_token,\
+    telegram_chat_id
 from gps_generator import GPSGenerator
 
 
@@ -65,6 +68,7 @@ class DBToFileWriter:
     def __init__(self, target_filename):
         self.target_filename = target_filename
         write_answer_keys(self.target_filename)
+        self.bot = telegram.Bot(token=telegram_token)
 
     def log_database_data(self):
             fixed_row = ''
@@ -87,9 +91,12 @@ class DBToFileWriter:
                 print('failing row: ', fixed_row)
                 exit(1)
             finally:
-                print(f'data written to file {self.target_filename}. Number of rows: {len(self.resultSet)}. '
-                      f'last id: {self.resultSet[- 1]["id"]}. Number of records retrieved but could not be evaluated: '
-                      f'{self.broken_records}')
+                message = f'data written to file {self.target_filename}. Number of rows: {len(self.resultSet)}. '
+                f'last id: {self.resultSet[- 1]["id"]}. Number of records retrieved but could not be evaluated: '
+                f'{self.broken_records}'
+                print(message)
+                self.bot.send_message(chat_id=telegram_chat_id, text=message,
+                                      parse_mode=telegram.ParseMode.HTML)
 
     def add_gps_coordinates(self, use_web_finder=False):
         try:
@@ -100,7 +107,10 @@ class DBToFileWriter:
             write_answer_keys(target_filename=self.filename_with_coords, suffix='lat,lng,address_street_accurate')
             with open(self.filename_with_coords, 'a') as file_with_coords:
                 file_with_coords.writelines(data_with_coords)
-            print(f'Data with GPS coordinates was written to {self.filename_with_coords}')
+            message = f'Data with GPS coordinates was written to {self.filename_with_coords}'
+            print(message)
+            self.bot.send_message(chat_id=telegram_chat_id, text=message,
+                                  parse_mode=telegram.ParseMode.HTML)
         except Exception as err:
             print('failed to load coordinates', err)
 
@@ -117,4 +127,4 @@ class DBToFileWriter:
 
     def clear_output_files(self):
         os.remove(self.target_filename)
-        os.replace(self.filename_with_coords, f'{destination_output}/{self.filename_with_coords}')
+        shutil.move(self.filename_with_coords, f'{destination_output}/{self.filename_with_coords}')

@@ -1,9 +1,9 @@
-from keys import gps_url_key, db_pass
+import keys
 db_settings = {
     "host": "35.230.137.198",
     "port": 5432,
     "username": "readonly",
-    "password": db_pass,
+    "password": keys.db_pass,
     "sslrootcert": './certs/server-ca.pem',
     "sslcert": './certs/client-cert.pem',
     "sslkey": './certs/client-key.pem',
@@ -128,9 +128,9 @@ values_to_convert = {
 }
 gps_source_file = './gps_data.json'
 gps_url = 'https://maps.googleapis.com/maps/api/geocode/json'
-gps_url_key = gps_url_key
+gps_url_key = keys.gps_url_key
 use_gps_finder = True
-query_batch_size = 10000
+query_batch_size = 100000
 process_max_rows = 1000000
 supported_questions_version = ['0.1.0',
                                '0.2.0',
@@ -147,5 +147,7 @@ supported_questions_version = ['0.1.0',
                                '2.2.0',
                                '2.2.2']
 query_from_date = '2020-04-02 00:00:00'
-destination_archive = "./archive"
-destination_output = "./bot_data"
+destination_archive = keys.destination_archive
+destination_output = keys.destination_output
+telegram_token = keys.telegram_token
+telegram_chat_id = '@covid19datacollector'
