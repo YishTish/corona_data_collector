@@ -64,6 +64,7 @@ answer_titles = {
     'numPreviousReports': 'num_previous_reports',
     'dateFirstReport': 'date_first_report',
     'medical_staff_member': 'medical_staff_member',
+    'served_public_last_fortnight': 'helped_10_people_in_last_2_weeks'
 }
 
 keys_to_convert = {
