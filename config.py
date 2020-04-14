@@ -15,6 +15,7 @@ answer_titles = {
     'sex': 'gender',
     'street': 'street',
     'city_town': 'city',
+    'alias': 'alias',
     'chronic_diabetes': 'diabetes',
     'chronic_hypertension': 'hypertension',
     'chronic_ischemic_heart_disease_or_stroke': 'ischemic_heart_disease_or_stroke',
@@ -64,7 +65,13 @@ answer_titles = {
     'numPreviousReports': 'num_previous_reports',
     'dateFirstReport': 'date_first_report',
     'medical_staff_member': 'medical_staff_member',
-    'served_public_last_fortnight': 'helped_10_people_in_last_2_weeks'
+    'served_public_last_fortnight': 'helped_10_people_in_last_2_weeks',
+    '​notificationsEnabled': '​notifications_enabled',
+    'layout': 'layout',
+    'locale': 'locale',
+    'version': 'questionare_version',
+    'engagementSource': 'engagement_source',
+    'notificationsEnabled': 'notifications enabled'
 }
 
 keys_to_convert = {
@@ -109,6 +116,7 @@ values_to_convert = {
         'has_symptoms': 4,
         'hospitalized': 5,
         'diagnosed': 5,
+        'insulation_with_family': 6,
     },
     'diagnosed_location': {
         'none': 0,
@@ -131,7 +139,7 @@ gps_source_file = './gps_data.json'
 gps_url = 'https://maps.googleapis.com/maps/api/geocode/json'
 gps_url_key = keys.gps_url_key
 use_gps_finder = True
-query_batch_size = 100000
+query_batch_size = 10000
 process_max_rows = 1000000
 supported_questions_version = ['0.1.0',
                                '0.2.0',

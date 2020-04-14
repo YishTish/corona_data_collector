@@ -18,7 +18,6 @@ def collect_row(row):
 
 def manipulate_values_versions(db_row):
     if 'exposure_status' in db_row and db_row['exposure_status'] == 'insulation_with_family':
-        db_row['exposure_status'] = 'diagnosed'
         db_row['isolated_with_family'] = 1
     return db_row
 
@@ -40,8 +39,6 @@ def write_answer_keys(target_filename, prefix='', suffix='', ):
 
 def convert_values(db_row):
     try:
-        if 'alias' in db_row:
-            db_row.pop('alias')
         db_row = manipulate_values_versions(db_row)
         for convert_key in keys_to_convert:
             if convert_key in db_row:

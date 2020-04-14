@@ -113,18 +113,17 @@ class TestConsistentLength(unittest.TestCase):
                     isolated += 1
         self.assertEqual(648, isolated)
 
-    def test_separate_files_consistent_with_trend(self):
-        first_content = None
-        with open('../bot_data/first_half_25_03_20.csv', 'r') as first_file:
-            first_content = first_file.readlines()
-        with open('../bot_data/first_half_25_03_20.csv', 'r') as second_file:
-            second_content = second_file.readlines()
+    def test_consistent_number_of_isolated(self):
+        with open('../bot_data/corona_bot_answers_25_3_2020_with_coords.csv', 'r') as data_file:
+            content = data_file.readlines()
         first = True
-        for line in second_content:
+        isolated_counter = 0
+        for line in content:
+            line_array = line.split(',')
             if first:
+                first_line = line_array
                 first = False
             else:
-                first_content.append(line)
-        with open('../bot_data/full_25_03_20.csv', 'w') as combined_file:
-            combined_file.writelines(first_content)
-        self.assertEqual(1, 1)
+                if int(line_array[first_line.index('isolation')]) > 0:
+                    isolated_counter += 1
+        self.assertEqual(1890+6+138+40+99, isolated_counter)

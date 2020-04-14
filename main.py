@@ -18,22 +18,24 @@ def run_query(settings, min_date, max_date, num_of_records=100):
                                       sslmode='verify-ca', sslrootcert=settings['sslrootcert'],
                                       sslcert=settings['sslcert'], sslkey=settings['sslkey'], database="reports")
         cursor = connection.cursor()
-        supported_versions_string = ''
-        for version in supported_questions_version:
-            supported_versions_string += f'\'{version}\','
-        cursor.execute(
-            f'SELECT * FROM reports '
-            f'where created > \'{min_date}\' and created < \'{max_date}\''
-            # f'and data->>\'version\' in ({supported_versions_string[0:-1]}) '
-            f' limit {num_of_records}'
-        )
-        records = cursor.fetchall()
-        for record in records:
-            if record[2] is not None and len(record[2]) > 0:
-                data_dict = record[2]
-                data_dict['id'] = record[0]
-                data_dict['created'] = record[1].isoformat()
-                fetched_rows.append(data_dict)
+        collected_all_records = False
+        while not collected_all_records:
+            cursor.execute(
+                f'SELECT * FROM reports '
+                f'where created > \'{min_date}\' and created < \'{max_date}\''
+                f' limit {num_of_records}'
+            )
+            records = cursor.fetchall()
+            if len(records) == 0:
+                collected_all_records = True
+            else:
+                for record in records:
+                    if record[2] is not None and len(record[2]) > 0:
+                        data_dict = record[2]
+                        data_dict['id'] = record[0]
+                        data_dict['created'] = record[1].isoformat()
+                        fetched_rows.append(data_dict)
+                min_date = records[-1][1]
         return fetched_rows
     except (Exception, psycopg2.Error) as err:
         print("Database error", err)
@@ -59,17 +61,14 @@ def get_process_arguments():
     return opts, args
 
 
-def get_initial_db_dates():
-    yesterday = datetime.now() - timedelta(days=1)
-    start_date = yesterday.strftime('%Y-%m-%d' + ' 00:00:00')
-    end_date = datetime.now().strftime('%Y-%m-%d') + ' 00:00:00'
-    return start_date, end_date
-
-
 if __name__ == '__main__':
     try:
-        output_file = datetime.now().strftime('%Y-%m-%d_%H%M')
-        db_to_file_writer = DBToFileWriter(f'corona_bot_answers_{output_file}.csv')
+        yesterday = datetime.now() - timedelta(days=1)
+        day = yesterday.day
+        month = yesterday.month
+        from_date = datetime(2020, month, day, 00, 00, 00)
+        to_date = datetime(2020, month, day, 23, 59, 59)
+        db_to_file_writer = DBToFileWriter(f'corona_bot_answers_{day}_{month}_2020.csv')
         options, arguments = get_process_arguments()
         if options.source == 'file':
             print(f'Loading data from {options.file_path}')
@@ -79,9 +78,9 @@ if __name__ == '__main__':
             source_filename = options.file_path.split('/')[-1]
             os.rename(options.file_path, f'{destination_archive}/{source_filename}')
         elif options.source == 'db':
-            from_date, to_date = get_initial_db_dates()
             collected_rows = run_query(db_settings, from_date, to_date, query_batch_size)
             if collected_rows is not None and len(collected_rows) > 0:
+                print(f'Number of DB rows collected: {len(collected_rows)}')
                 db_to_file_writer.resultSet = collected_rows
                 from_date = collected_rows[-1]['created']
                 db_to_file_writer.log_database_data()
