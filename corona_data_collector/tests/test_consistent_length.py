@@ -1,6 +1,7 @@
 import unittest
 from corona_data_collector.DBToFileWriter import DBToFileWriter, collect_row, write_answer_keys
 from corona_data_collector.config import answer_titles, values_to_convert
+from corona_data_collector.questionare_versions import questionare_versions
 
 class TestConsistentLength(unittest.TestCase):
 
@@ -127,3 +128,27 @@ class TestConsistentLength(unittest.TestCase):
                 if int(line_array[first_line.index('isolation')]) > 0:
                     isolated_counter += 1
         self.assertEqual(1890+6+138+40+99, isolated_counter)
+
+    def test_nan_when_question_not_asked(self):
+        with open('../bot_data/corona_bot_answers_25_3_2020_with_coords.csv', 'r') as data_file:
+            content = data_file.readlines()
+        first = True
+        version_index = 0
+        first_line_array = []
+        for line in content:
+            if first:
+                first = False
+                first_line = line
+                first_line_array = first_line.split(',')
+                version_index = first_line_array.index('questionare_version')
+            else:
+                values = line.split(',')
+                version = values[version_index]
+                for i in range(len(values)):
+                    if values[i] in ['', 0]:
+                        if first_line_array[i] in questionare_versions[version]:
+                            self.assertEqual(0, values[i])
+                        else:
+                            self.assertEqual('', values[i])
+
+

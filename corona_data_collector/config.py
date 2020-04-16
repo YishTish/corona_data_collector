@@ -172,20 +172,6 @@ gps_url_key = keys.gps_url_key
 use_gps_finder = True
 query_batch_size = 10000
 process_max_rows = 1000000
-supported_questions_version = ['0.1.0',
-                               '0.2.0',
-                               '0.2.1',
-                               '1.0.1',
-                               '1.1.0',
-                               '2.0.0',
-                               '2.0.1',
-                               '2.0.2',
-                               '2.0.3',
-                               '2.0.4',
-                               '2.0.5',
-                               '2.1.0',
-                               '2.2.0',
-                               '2.2.2']
 query_from_date = '2020-04-02 00:00:00'
 destination_archive = keys.destination_archive
 destination_output = keys.destination_output

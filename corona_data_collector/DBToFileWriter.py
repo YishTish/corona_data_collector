@@ -1,15 +1,23 @@
 import os
 import shutil
 import telegram
-from corona_data_collector.config import answer_titles, values_to_convert, keys_to_convert, destination_output, telegram_token,\
+from corona_data_collector.config import answer_titles, values_to_convert, keys_to_convert, destination_output, \
+    telegram_token, \
     telegram_chat_id
 from corona_data_collector.gps_generator import GPSGenerator
+from corona_data_collector.questionare_versions import questionare_versions
+
+
+def get_default_value(column_name, version):
+    if column_name in questionare_versions[version]:
+        return 0
+    return ''
 
 
 def collect_row(row):
     returned_array = []
     for key, value in answer_titles.items():
-        val = row.get(key, 0)
+        val = row.get(key, get_default_value(key, row['version']))
         if isinstance(val, str):
             val = val.replace(',', ' - ')
         returned_array.append(val)
