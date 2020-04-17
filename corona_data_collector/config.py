@@ -101,7 +101,9 @@ answer_titles = {
     'locale': 'locale',
     'version': 'questionare_version',
     'engagementSource': 'engagement_source',
-    'notificationsEnabled': 'notifications enabled'
+    'notificationsEnabled': 'notifications enabled',
+    'covid19_check_date': 'covid19_check_date',
+    'covid19_check_result':  'covid19_check_result',
 }
 
 keys_to_convert = {
