@@ -3,6 +3,7 @@ from corona_data_collector.DBToFileWriter import DBToFileWriter, collect_row, wr
 from corona_data_collector.config import answer_titles, values_to_convert
 from corona_data_collector.questionare_versions import questionare_versions
 
+
 class TestConsistentLength(unittest.TestCase):
 
     def test_length_consistent(self):
