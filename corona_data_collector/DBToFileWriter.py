@@ -7,9 +7,14 @@ from corona_data_collector.config import answer_titles, values_to_convert, keys_
 from corona_data_collector.gps_generator import GPSGenerator
 from corona_data_collector.questionare_versions import questionare_versions
 
+old_keys = {}
+for key in keys_to_convert:
+    old_keys[keys_to_convert[key]] = key
+
 
 def get_default_value(column_name, version):
-    if column_name in questionare_versions[version]:
+    if column_name in questionare_versions[version]\
+            or column_name in old_keys and old_keys[column_name] in questionare_versions[version]:
         return 0
     return ''
 
@@ -22,12 +27,6 @@ def collect_row(row):
             val = val.replace(',', ' - ')
         returned_array.append(val)
     return ','.join([str(x) for x in returned_array])
-
-
-def manipulate_values_versions(db_row):
-    if 'exposure_status' in db_row and db_row['exposure_status'] == 'insulation_with_family':
-        db_row['isolated_with_family'] = 1
-    return db_row
 
 
 def write_answer_keys(target_filename, prefix='', suffix='', ):
@@ -47,7 +46,6 @@ def write_answer_keys(target_filename, prefix='', suffix='', ):
 
 def convert_values(db_row):
     try:
-        db_row = manipulate_values_versions(db_row)
         for convert_key in keys_to_convert:
             if convert_key in db_row:
                 db_row[keys_to_convert[convert_key]] = db_row[convert_key]
@@ -76,32 +74,32 @@ class DBToFileWriter:
         self.bot = telegram.Bot(token=telegram_token)
 
     def log_database_data(self):
-            fixed_row = ''
-            try:
-                lines = []
-                for row in self.resultSet:
-                    fixed_row = convert_values(row)
-                    if fixed_row is None:
-                        self.broken_records += 1
-                        continue
-                    collected_row = collect_row(fixed_row)
-                    if len(collected_row.split(',')) == len(answer_titles):
-                        lines.append(collected_row + "\n")
-                    else:
-                        print('skipped row: ', collected_row)
-                with open(self.target_filename, 'a', encoding="utf-8") as file:
-                    file.writelines(lines)
-            except Exception as err:
-                print('failed to write data to file - ', err)
-                print('failing row: ', fixed_row)
-                exit(1)
-            finally:
-                message = f'data written to file {self.target_filename}. Number of rows: {len(self.resultSet)}. '
-                f'last id: {self.resultSet[- 1]["id"]}. Number of records retrieved but could not be evaluated: '
-                f'{self.broken_records}'
-                print(message)
-                self.bot.send_message(chat_id=telegram_chat_id, text=message,
-                                      parse_mode=telegram.ParseMode.HTML)
+        fixed_row = ''
+        try:
+            lines = []
+            for row in self.resultSet:
+                fixed_row = convert_values(row)
+                if fixed_row is None:
+                    self.broken_records += 1
+                    continue
+                collected_row = collect_row(fixed_row)
+                if len(collected_row.split(',')) == len(answer_titles):
+                    lines.append(collected_row + "\n")
+                else:
+                    print('skipped row: ', collected_row)
+            with open(self.target_filename, 'a', encoding="utf-8") as file:
+                file.writelines(lines)
+        except Exception as err:
+            print('failed to write data to file - ', err)
+            print('failing row: ', fixed_row)
+            exit(1)
+        finally:
+            message = f'data written to file {self.target_filename}. Number of rows: {len(self.resultSet)}. '
+            f'last id: {self.resultSet[- 1]["id"]}. Number of records retrieved but could not be evaluated: '
+            f'{self.broken_records}'
+            print(message)
+            self.bot.send_message(chat_id=telegram_chat_id, text=message,
+                                  parse_mode=telegram.ParseMode.HTML)
 
     def add_gps_coordinates(self, use_web_finder=False):
         try:
