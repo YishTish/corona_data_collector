@@ -63,7 +63,6 @@ answer_titles = {
     'isolated_with_family': 'isolated_with_family',
     'diagnosed_location': 'diagnosed_location',
     'general_feeling': 'general_feeling',
-    'current-report-temperature': 'current-report-temperature',
     'temperature': 'temperature',
     'toplevel_symptoms_cough': 'toplevel_symptoms_cough',
     'toplevel_symptoms_pains': 'toplevel_symptoms_pains',
@@ -96,7 +95,6 @@ answer_titles = {
     'dateFirstReport': 'date_first_report',
     'medical_staff_member': 'medical_staff_member',
     'served_public_last_fortnight': 'helped_10_people_in_last_2_weeks',
-    '​notificationsEnabled': '​notifications_enabled',
     'layout': 'layout',
     'locale': 'locale',
     'version': 'questionare_version',
@@ -118,6 +116,7 @@ keys_to_convert = {
     'precondition_chronic_immune_system_suppression': 'chronic_immune_system_suppression',
     'hospitalized': 'diagnosed_location',
     'precondition_smoking': 'smoking',
+    'symptoms_tiredness_or_fatigue': 'symptoms_fatigue'
 }
 
 
