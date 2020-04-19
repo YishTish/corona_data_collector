@@ -60,7 +60,6 @@ answer_titles = {
     'insulation_returned_from_abroad_date': 'isolation_returned_from_abroad_date',
     'insulation_patient_number': 'insulation_patient_number',
     'insulation_exposure_date': 'insulation_exposure_date',
-    'isolated_with_family': 'isolated_with_family',
     'diagnosed_location': 'diagnosed_location',
     'general_feeling': 'general_feeling',
     'temperature': 'temperature',
