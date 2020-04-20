@@ -29,6 +29,8 @@ def collect_row(row):
     returned_array = []
     for key, _ in answer_titles.items():
         val = row.get(key, get_default_value(key, row['version']))
+        if val is None:
+            val = 0
         if isinstance(val, str):
             val = val.replace(',', ' - ')
         returned_array.append(val)
