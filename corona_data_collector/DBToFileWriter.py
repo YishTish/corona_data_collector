@@ -27,7 +27,7 @@ def get_default_value(column_name, version):
 
 def collect_row(row):
     returned_array = []
-    for key, _ in answer_titles.items():
+    for key, _ in sorted(list(answer_titles.items())):
         val = row.get(key, get_default_value(key, row['version']))
         if isinstance(val, str):
             val = val.replace(',', ' - ')
@@ -37,7 +37,7 @@ def collect_row(row):
 
 def write_answer_keys(target_filename, prefix='', suffix='', ):
     answer_keys_line = ''
-    for key, value in answer_titles.items():
+    for key, value in sorted(list(answer_titles.items())):
         if len(answer_keys_line) == 0:
             answer_keys_line = value
         else:
@@ -136,6 +136,8 @@ class DBToFileWriter:
 
     def clear_output_files(self):
         os.remove(self.target_filename)
+        if not os.path.exists(destination_output):
+            os.makedirs(destination_output)
         shutil.move(
             self.filename_with_coords,
             os.path.join(destination_output, os.path.basename(self.filename_with_coords))
